@@ -25,6 +25,7 @@ import { applyTheme } from '../assets/theme';
  * @property {'created'|'due'|'alpha'|'status'} sort - Current sort key
  * @property {Settings} settings - UI settings
  * @property {Array<string>} categories - List of categories
+ * @property {'all'|'none'|string} [selectedCategory] - Current category filter ('all' shows all, 'none' shows tasks without category)
  */
 
 /**
@@ -41,6 +42,7 @@ export const ActionTypes = {
   SET_THEME: 'SET_THEME',
   SET_ACCENT: 'SET_ACCENT',
   ADD_CATEGORY: 'ADD_CATEGORY',
+  SET_SELECTED_CATEGORY: 'SET_SELECTED_CATEGORY',
 };
 
 /**
@@ -56,6 +58,7 @@ export const initialState = {
     accent: 'primary',
   },
   categories: [],
+  selectedCategory: 'all',
 };
 
 /**
@@ -141,6 +144,17 @@ function reducer(state, action) {
       if (!cat || state.categories.includes(cat)) return state;
       return { ...state, categories: [...state.categories, cat] };
     }
+    case ActionTypes.SET_SELECTED_CATEGORY: {
+      // payload: 'all' | 'none' | string
+      let next = action.payload;
+      if (next !== 'all' && next !== 'none') {
+        // if selected category not present anymore, coerce to 'all'
+        if (!state.categories.includes(next)) {
+          next = 'all';
+        }
+      }
+      return { ...state, selectedCategory: next };
+    }
     default:
       return state;
   }
@@ -174,7 +188,14 @@ function isUpcoming(date, now = new Date()) {
  * @returns {Task[]}
  */
 export function selectVisibleTasks(state) {
-  const base = state.tasks;
+  // apply category filtering first
+  let base = state.tasks;
+  const cat = state.selectedCategory || 'all';
+  if (cat === 'none') {
+    base = base.filter(t => !t.category);
+  } else if (cat !== 'all') {
+    base = base.filter(t => t.category === cat);
+  }
   switch (state.filter) {
     case 'active':
       return base.filter(t => !t.completed);
@@ -295,6 +316,14 @@ export function TodoProvider({ children, initial }) {
       addCategory(category) {
         /** Add a new category if not present. */
         dispatch({ type: ActionTypes.ADD_CATEGORY, payload: category });
+      },
+      // PUBLIC_INTERFACE
+      setSelectedCategory(value) {
+        /**
+         * Set the current category filter.
+         * value: 'all' | 'none' | string (must exist in categories to be retained)
+         */
+        dispatch({ type: ActionTypes.SET_SELECTED_CATEGORY, payload: value });
       },
     };
   }, [dispatch]);
