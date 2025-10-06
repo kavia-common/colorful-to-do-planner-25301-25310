@@ -1,0 +1,42 @@
+:root{
+  --color-primary:#EC4899;
+  --color-secondary:#8B5CF6;
+  --color-success:#10B981;
+  --color-error:#EF4444;
+  --color-bg:#FDF2F8;
+  --color-surface:#FFFFFF;
+  --color-text:#374151;
+
+  /* dynamic tokens */
+  --accent:var(--color-primary);
+  --radius:14px;
+
+  /* elevations and focus */
+  --shadow:0 8px 24px rgba(139,92,246,0.15);
+  --focus-ring:0 0 0 3px color-mix(in oklab,var(--accent),white 60%);
+}
+
+[data-theme="dark"]{
+  --color-bg:#0f1220;
+  --color-surface:#171a2b;
+  --color-text:#e5e7eb;
+}
+
+/* Utility styles aligned with Ocean Professional */
+.gradient-header{
+  background:linear-gradient(135deg,#fce7f3, #e9d5ff 40%, #dbeafe);
+}
+
+/* Accessibility: visible focus ring helper */
+.focus-ring:focus{
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+
+/* Small chip/badge */
+.chip{
+  border-radius:9999px;
+  padding:2px 10px;
+  background:color-mix(in oklab,var(--accent),white 85%);
+  color:var(--color-text);
+}
