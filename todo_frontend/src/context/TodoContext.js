@@ -43,6 +43,8 @@ export const ActionTypes = {
   SET_ACCENT: 'SET_ACCENT',
   ADD_CATEGORY: 'ADD_CATEGORY',
   SET_SELECTED_CATEGORY: 'SET_SELECTED_CATEGORY',
+  SET_DENSITY: 'SET_DENSITY',
+  SET_SETTINGS_OPEN: 'SET_SETTINGS_OPEN',
 };
 
 /**
@@ -56,9 +58,11 @@ export const initialState = {
   settings: {
     theme: 'light',
     accent: 'primary',
+    density: 'comfortable',
   },
   categories: [],
   selectedCategory: 'all',
+  settingsOpen: false,
 };
 
 /**
@@ -138,6 +142,13 @@ function reducer(state, action) {
     case ActionTypes.SET_ACCENT: {
       const accent = action.payload;
       return { ...state, settings: { ...state.settings, accent } };
+    }
+    case ActionTypes.SET_DENSITY: {
+      const density = action.payload === 'compact' ? 'compact' : 'comfortable';
+      return { ...state, settings: { ...state.settings, density } };
+    }
+    case ActionTypes.SET_SETTINGS_OPEN: {
+      return { ...state, settingsOpen: Boolean(action.payload) };
     }
     case ActionTypes.ADD_CATEGORY: {
       const cat = action.payload;
@@ -262,7 +273,14 @@ export function TodoProvider({ children, initial }) {
       theme: state.settings.theme,
       accent: state.settings.accent,
     });
-  }, [state.settings.theme, state.settings.accent]);
+    try {
+      const root = document.documentElement;
+      const density = state.settings.density || 'comfortable';
+      root.setAttribute('data-density', density);
+    } catch (_e) {
+      // no-op in non-browser environments
+    }
+  }, [state.settings.theme, state.settings.accent, state.settings.density]);
 
   // Bound action creators for convenience and testid-friendly integration later
   const actions = useMemo(() => {
@@ -311,6 +329,16 @@ export function TodoProvider({ children, initial }) {
       setAccent(accent) {
         /** Set accent color: 'primary' | 'secondary' | CSS color string. */
         dispatch({ type: ActionTypes.SET_ACCENT, payload: accent });
+      },
+      // PUBLIC_INTERFACE
+      setDensity(density) {
+        /** Set UI density: 'comfortable' | 'compact'. */
+        dispatch({ type: ActionTypes.SET_DENSITY, payload: density });
+      },
+      // PUBLIC_INTERFACE
+      setSettingsOpen(open) {
+        /** Control the visibility of the settings panel modal. */
+        dispatch({ type: ActionTypes.SET_SETTINGS_OPEN, payload: open });
       },
       // PUBLIC_INTERFACE
       addCategory(category) {
