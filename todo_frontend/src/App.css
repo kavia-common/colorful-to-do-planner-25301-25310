@@ -1,104 +1,72 @@
-/* CSS Variables for Theme Management */
-:root {
-  /* Light theme colors */
-  --bg-primary: #ffffff;
-  --bg-secondary: #f8f9fa;
-  --text-primary: #282c34;
-  --text-secondary: #61dafb;
-  --border-color: #e9ecef;
-  --button-bg: #007bff;
-  --button-text: #ffffff;
+.app-root{
+  min-height:100vh;
+  background:var(--color-bg);
+  color:var(--color-text);
+  display:flex;
+  flex-direction:column;
 }
 
-[data-theme="dark"] {
-  /* Dark theme colors */
-  --bg-primary: #1a1a1a;
-  --bg-secondary: #282c34;
-  --text-primary: #ffffff;
-  --text-secondary: #61dafb;
-  --border-color: #404040;
-  --button-bg: #0056b3;
-  --button-text: #ffffff;
+/* Main content container */
+.app-main{
+  flex:1 1 auto;
+  width:100%;
+  max-width:1100px;
+  margin:0 auto;
+  padding:20px 16px 32px;
+  display:grid;
+  gap:14px;
 }
 
-.App {
-  text-align: center;
-  background-color: var(--bg-primary);
-  color: var(--text-primary);
-  min-height: 100vh;
-  transition: background-color 0.3s ease, color 0.3s ease;
+/* Sections spacing */
+.app-section{
+  display:block;
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
+/* Ocean Professional playful enhancements */
+.app-main::before{
+  /* subtle background accent using gradient for lively feel */
+  content:'';
+  position:fixed;
+  inset:auto 0 0 0;
+  height:220px;
+  background:linear-gradient(135deg,#fce7f3, #e9d5ff 40%, #dbeafe);
+  opacity:.45;
+  filter:saturate(1.05);
+  z-index:-1;
+  pointer-events:none;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
+/* Generic utilities used by components */
+.focus-ring:focus-visible{
+  outline:none;
+  box-shadow:var(--focus-ring);
 }
 
-.App-header {
-  background-color: var(--bg-secondary);
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: var(--text-primary);
-  transition: background-color 0.3s ease;
-  position: relative;
+/* Responsive density tweaks tied to data-density */
+:root[data-density="compact"] .app-main{
+  padding:14px 12px 24px;
+  gap:10px;
 }
 
-.App-link {
-  color: var(--text-secondary);
-  transition: color 0.3s ease;
+/* Ensure forms and lists breathe well with the playful style */
+.app-section .card{
+  background:var(--color-surface);
+  border:1px solid color-mix(in oklab,var(--accent),black 90%);
+  border-radius:var(--radius);
+  box-shadow:var(--shadow);
 }
 
-.theme-toggle {
-  position: absolute;
-  top: 20px;
-  right: 20px;
-  background-color: var(--button-bg);
-  color: var(--button-text);
-  border: none;
-  border-radius: 8px;
-  padding: 10px 20px;
-  font-size: 14px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-.theme-toggle:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
-  opacity: 0.9;
-}
-
-.theme-toggle:active {
-  transform: translateY(0);
-}
-
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-/* Responsive design for mobile */
-@media (max-width: 768px) {
-  .theme-toggle {
-    top: 10px;
-    right: 10px;
-    padding: 8px 16px;
-    font-size: 12px;
-  }
+/* Small helper for visually hidden content (if needed here) */
+.sr-only {
+  border: 0 !important;
+  clip: rect(1px, 1px, 1px, 1px) !important;
+  -webkit-clip-path: inset(50%) !important;
+  clip-path: inset(50%) !important;
+  height: 1px !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  padding: 0 !important;
+  position: absolute !important;
+  width: 1px !important;
+  word-wrap: normal !important;
 }
