@@ -23,6 +23,7 @@ import { useTodo } from '../context/TodoContext';
 export default function Filters({
   className = '',
   'data-testid': testId = 'filters',
+  rootRef,
 }) {
   const { state, actions } = useTodo();
   const uid = useId();
@@ -128,10 +129,12 @@ export default function Filters({
 
   return (
     <section
+      ref={rootRef}
       className={['filters card', className].filter(Boolean).join(' ')}
       role="region"
       aria-labelledby={`${uid}-filters-title`}
       data-testid={testId}
+      tabIndex={-1}
     >
       <div className="filters-inner">
         <h2 id={`${uid}-filters-title`} className="sr-only">Filters</h2>

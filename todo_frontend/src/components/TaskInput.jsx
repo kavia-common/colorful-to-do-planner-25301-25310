@@ -23,13 +23,15 @@ export default function TaskInput({
   autoFocus = false,
   className = '',
   'data-testid': testId = 'task-input',
+  inputRef: externalInputRef,
 }) {
   const { state, actions } = useTodo();
   const [title, setTitle] = useState('');
   const [due, setDue] = useState('');
   const [category, setCategory] = useState('');
   const [announcement, setAnnouncement] = useState('');
-  const inputRef = useRef(null);
+  const internalInputRef = useRef(null);
+  const inputRef = externalInputRef || internalInputRef;
   const liveRef = useRef(null);
 
   const categories = state?.categories || [];

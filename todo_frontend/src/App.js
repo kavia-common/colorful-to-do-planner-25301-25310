@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React, { useCallback, useRef } from 'react';
 import './index.css';
 import './App.css';
 import { TodoProvider, useTodo } from './context/TodoContext';
@@ -7,6 +7,7 @@ import TaskInput from './components/TaskInput';
 import Filters from './components/Filters';
 import TaskList from './components/TaskList';
 import SettingsPanel from './components/SettingsPanel';
+import useKeyboardShortcuts from './hooks/useKeyboardShortcuts';
 
 // PUBLIC_INTERFACE
 export default function App() {
@@ -28,6 +29,8 @@ export default function App() {
 function AppShell() {
   const { state, actions } = useTodo();
   const settingsBtnRef = useRef(null);
+  const taskTitleInputRef = useRef(null);
+  const filtersRootRef = useRef(null);
 
   // Ensure data-theme/data-accent/data-density are reflected on documentElement.
   // Most of this is already handled by TodoProvider via applyTheme(), but we add
@@ -49,7 +52,66 @@ function AppShell() {
     // Non-browser environment, ignore
   }
 
-  const closeSettings = () => actions.setSettingsOpen(false);
+  const closeSettings = useCallback(() => actions.setSettingsOpen(false), [actions]);
+
+  // Handlers wired for keyboard shortcuts
+  const handleAddTask = useCallback(() => {
+    // Prefer submitting the TaskInput form if focused; otherwise move focus to the task input
+    const el = taskTitleInputRef.current;
+    if (el) {
+      // If there is text in the input, simulate Enter by dispatching a submit event on the form
+      // Otherwise, focus the input so the user can type
+      if (el.value && el.value.trim().length > 0) {
+        // Find the surrounding form and submit it
+        const form = el.closest('form');
+        if (form) {
+          form.requestSubmit ? form.requestSubmit() : form.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
+          return;
+        }
+      }
+      el.focus();
+    }
+  }, []);
+
+  const handleCancelOrClose = useCallback(() => {
+    // If settings are open, close them; otherwise, do nothing here since TaskItem handles its own Esc
+    if (state.settingsOpen) {
+      closeSettings();
+    }
+  }, [state.settingsOpen, closeSettings]);
+
+  const handleFocusFilters = useCallback(() => {
+    const node = filtersRootRef.current;
+    if (node) {
+      // Focus the first interactive control inside Filters (tab or select)
+      const focusables = node.querySelectorAll('button[role="tab"], select, button, [tabindex]:not([tabindex="-1"])');
+      if (focusables.length > 0) {
+        focusables[0].focus();
+      } else {
+        node.focus?.();
+      }
+    }
+  }, []);
+
+  const handleToggleHelp = useCallback(() => {
+    // Optional: Toggle a help tooltip. For now, announce instructions in the console.
+    // Could be extended with in-UI tooltip component.
+    // eslint-disable-next-line no-console
+    console.info('[Help] Shortcuts: Enter (add task), Esc (cancel/close), Ctrl/Cmd+F (focus filters), ? (help).');
+  }, []);
+
+  // Install global shortcuts
+  useKeyboardShortcuts(
+    {
+      addTask: handleAddTask,
+      cancelEdit: undefined, // TaskItem and TaskInput manage Esc locally; keep closeSettings for global Esc
+      closeSettings: handleCancelOrClose,
+      focusFilters: handleFocusFilters,
+      toggleHelp: handleToggleHelp,
+      enabled: true,
+    },
+    [handleAddTask, handleCancelOrClose, handleFocusFilters, handleToggleHelp, state.settingsOpen]
+  );
 
   return (
     <div className="app-root" data-testid="app-root">
@@ -60,7 +122,7 @@ function AppShell() {
           aria-label="Task input"
           data-testid="task-input-section"
         >
-          <TaskInput autoFocus />
+          <TaskInput autoFocus inputRef={taskTitleInputRef} />
         </section>
 
         <section
@@ -68,7 +130,7 @@ function AppShell() {
           aria-label="Filters and sort"
           data-testid="filters-section"
         >
-          <Filters />
+          <Filters rootRef={filtersRootRef} />
         </section>
 
         <section
